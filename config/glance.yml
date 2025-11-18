@@ -1,0 +1,267 @@
+# ----- AUTH (optional but recommended) -----
+# Generate a secret key with:
+#   docker run --rm glanceapp/glance secret:make
+# Hash a password with:
+#   docker run --rm glanceapp/glance password:hash yourpassword
+# and feed both via env vars so they don't live in the file.
+auth:
+  secret-key: ${GLANCE_SECRET_KEY}
+  users:
+    kell:
+      password-hash: ${GLANCE_DELTA_PASSWORD_HASH}
+
+# ----- SERVER / REVERSE PROXY -----
+server:
+  # Glance will trust X-Forwarded-* from Nginx Proxy Manager
+  proxied: true
+  port: 8080
+
+# ----- BRANDING -----
+branding:
+  app-name: "deltaisland"
+  logo-text: "Δ"
+  hide-footer: false
+  custom-footer: |
+    Powered by Glance • deltaisland.io
+
+# ----- THEME (dark purple, tweak to taste) -----
+# Colors are HSL: "hue saturation lightness"
+theme:
+  light: false
+  background-color: 276 22 10      # dark purple
+  primary-color: 276 68 62         # accent purple
+  contrast-multiplier: 1.2
+  text-saturation-multiplier: 0.9
+  disable-picker: false
+  presets:
+    default-dark:
+      background-color: 240 8 9
+      primary-color: 43 50 70
+    delta-light:
+      light: true
+      background-color: 220 23 95
+      primary-color: 220 91 54
+      contrast-multiplier: 1.1
+
+# ----- GLOBAL DOCUMENT (optional) -----
+document:
+  head: |
+    <!-- Example: add custom CSS if you want later -->
+    <!-- <link rel="stylesheet" href="/assets/user.css"> -->
+
+# =================== PAGES ===================
+
+pages:
+  # ========= PAGE 1: HOME =========
+  - name: Home
+    slug: home
+    width: default
+    # Big header widget across the top
+    head-widgets:
+      - type: search
+        title: Search
+        search-engine: duckduckgo
+        new-tab: true
+        autofocus: true
+        bangs:
+          - title: YouTube
+            shortcut: "!yt"
+            url: "https://www.youtube.com/results?search_query={QUERY}"
+          - title: Reddit
+            shortcut: "!r"
+            url: "https://www.reddit.com/search?q={QUERY}"
+          - title: GitHub
+            shortcut: "!gh"
+            url: "https://github.com/search?q={QUERY}"
+          - title: ArchWiki
+            shortcut: "!aw"
+            url: "https://wiki.archlinux.org/index.php?search={QUERY}"
+
+    columns:
+      # ---- Left column: life stuff ----
+      - size: small
+        widgets:
+          - type: calendar
+            first-day-of-week: monday
+
+          - type: weather
+            title: Weather
+            location: "Philadelphia, Pennsylvania, United States"
+            units: imperial
+            hour-format: 12h
+
+          - type: to-do
+            title: Quick tasks
+            id: "home-todo"
+
+      # ---- Center column: feeds / info ----
+      - size: full
+        widgets:
+          - type: group
+            title: News & Hacker Stuff
+            widgets:
+              - type: hacker-news
+                collapse-after: 5
+              - type: lobsters
+                collapse-after: 5
+
+          - type: rss
+            title: Tech / Self-hosting
+            limit: 20
+            collapse-after: 6
+            cache: 1h
+            feeds:
+              - url: https://selfh.st/rss/
+                title: selfh.st
+              - url: https://noted.lol/rss/
+                title: Noted.lol
+              - url: https://hnrss.org/frontpage
+                title: Hacker News
+              - url: https://www.reddit.com/r/selfhosted/.rss
+                title: r/selfhosted
+              - url: https://www.reddit.com/r/homelab/.rss
+                title: r/homelab
+
+          - type: server-stats
+            title: deltaisland VPS
+            servers:
+              - type: local
+                name: "deltaisland VPS"
+                hide-swap: false
+
+      # ---- Right column: your services ----
+      - size: small
+        widgets:
+          - type: monitor
+            title: Core services
+            cache: 1m
+            style: compact
+            sites:
+              - title: Glance
+                url: https://glance.deltaisland.io
+              - title: Portainer
+                url: https://portainer.deltaisland.io
+              - title: Nginx Proxy Manager
+                url: https://npm.deltaisland.io
+              - title: Jellyfin
+                url: https://stream.deltaisland.io
+              - title: Nextcloud
+                url: https://cloud.dpdrm.com
+              - title: Linkwarden
+                url: https://links.deltaisland.io
+              - title: Sonarr
+                url: https://sonarr.deltaisland.io
+              - title: Radarr
+                url: https://radarr.deltaisland.io
+              - title: Prowlarr
+                url: https://prowlarr.deltaisland.io
+              - title: SABnzbd
+                url: https://nzb.deltaisland.io
+              - title: qBittorrent
+                url: https://qb.deltaisland.io
+
+          - type: releases
+            title: Important releases
+            cache: 12h
+            repositories:
+              - glanceapp/glance
+              - jellyfin/jellyfin
+              - Immich-app/immich
+              - go-gitea/gitea
+              - syncthing/syncthing
+
+  # ========= PAGE 2: MEDIA =========
+  - name: Media
+    slug: media
+    width: wide
+    columns:
+      - size: full
+        widgets:
+          - type: split-column
+            max-columns: 3
+            widgets:
+              - type: rss
+                title: Media / Movies
+                limit: 15
+                collapse-after: 5
+                feeds:
+                  - url: https://www.reddit.com/r/movies/.rss
+                  - url: https://www.reddit.com/r/criterion/.rss
+              - type: rss
+                title: Music
+                limit: 15
+                collapse-after: 5
+                feeds:
+                  - url: https://pitchfork.com/feed/feed-news/rss/
+                  - url: https://www.reddit.com/r/hiphopheads/.rss
+              - type: rss
+                title: Gaming
+                limit: 15
+                collapse-after: 5
+                feeds:
+                  - url: https://www.reddit.com/r/pcgaming/.rss
+                  - url: https://www.reddit.com/r/SteamDeck/.rss
+
+          - type: videos
+            title: YouTube – Tech & Music
+            channels:
+              - UCsBjURrPoezykLs9EqgamOA # Fireship
+              - UCBJycsmduvYEL83R_U4JriQ # MKBHD
+              - UCR-DXc1voovS8nhAvccRZhg # Jeff Geerling
+              - UCXuqSBlHAE6Xw-yeJA0Tunw # Linus Tech Tips
+
+  # ========= PAGE 3: HOMELAB =========
+  - name: Homelab
+    slug: homelab
+    width: wide
+    columns:
+      - size: full
+        widgets:
+          - type: docker-containers
+            title: Media containers
+            category: media
+            running-only: false
+
+          - type: docker-containers
+            title: Homelab / infra containers
+            category: homelab
+            running-only: false
+
+#          - type: dns-stats
+
+
+  # ========= PAGE 4: DEV / LINKS =========
+  - name: Dev & Links
+    slug: dev
+    width: slim
+    columns:
+      - size: small
+        widgets:
+          - type: bookmarks
+            title: Quick links
+            groups:
+              - title: deltaisland
+                links:
+                  - title: Portainer
+                    url: https://portainer.deltaisland.io
+                  - title: NPM
+                    url: https://proxy.deltaisland.io
+                  - title: Homarr
+                    url: https://homarr.deltaisland.io
+              - title: Coding
+                links:
+                  - title: GitHub
+                    url: https://github.com/
+                  - title: Go playground
+                    url: https://go.dev/play/
+      - size: full
+        widgets:
+          - type: reddit
+            title: Dev subs
+            subreddit: selfhosted
+            show-thumbnails: true
+            collapse-after: 10
+          - type: reddit
+            subreddit: homelab
+            show-thumbnails: true
+            collapse-after: 10
